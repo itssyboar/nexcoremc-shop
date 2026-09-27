@@ -1,0 +1,40 @@
+name: Build NexCoreSmartSpawners
+
+on:
+  push:
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 21
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+
+      - name: Grant execute permission for gradlew
+        run: |
+          if [ ! -f gradlew ]; then
+            gradle wrapper --gradle-version 8.10
+          fi
+          chmod +x gradlew
+
+      - name: Build
+        run: ./gradlew clean build --no-daemon
+
+      - name: List produced jar contents (sanity check)
+        run: |
+          JAR=$(find build/libs -name "NexCoreSmartSpawners-*.jar" ! -name "*-sources.jar" | head -n1)
+          echo "Built: $JAR"
+          jar tf "$JAR"
+
+      - name: Upload jar artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: NexCoreSmartSpawners-jar
+          path: build/libs/NexCoreSmartSpawners-*.jar
