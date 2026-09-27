@@ -1,0 +1,48 @@
+plugins {
+    id 'java'
+}
+
+group = 'com.nexcore'
+version = '1.0.0'
+
+java {
+    sourceCompatibility = JavaVersion.VERSION_21
+    targetCompatibility = JavaVersion.VERSION_21
+}
+
+repositories {
+    mavenCentral()
+    maven { url = 'https://repo.papermc.io/repository/maven-public/' }
+    maven { url = 'https://jitpack.io' } // Vault API
+}
+
+dependencies {
+    // Paper API for Minecraft 1.21.11. Confirmed against Paper's own release
+    // notes/issue tracker: a stock Paper 1.21.11 server reports
+    // "Implementing API version 1.21.11-R0.1-SNAPSHOT", so that is the
+    // artifact version published to repo.papermc.io for this release.
+    compileOnly 'io.papermc.paper:paper-api:1.21.11-R0.1-SNAPSHOT'
+
+    // Vault economy API
+    compileOnly 'com.github.MilkBowl:VaultAPI:1.7.1'
+
+    // SmartSpawner 1.5.8 - place the exact jar installed on your server here.
+    // This is only needed at COMPILE time, to see the SmartSpawnerAPI classes.
+    // It is NOT bundled/shaded into the output jar - your server already has it as a plugin.
+    compileOnly files('libs/SmartSpawner-1.5.8.jar')
+}
+
+processResources {
+    filesMatching('plugin.yml') {
+        expand(version: version)
+    }
+}
+
+tasks.withType(JavaCompile).configureEach {
+    options.encoding = 'UTF-8'
+}
+
+jar {
+    archiveBaseName.set('NexCoreSmartSpawners')
+    archiveVersion.set(version.toString())
+}
